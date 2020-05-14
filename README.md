@@ -1,8 +1,10 @@
 # Cartoonify
 ## Android Application
 
+Camera Preview/Capture activity for taking a picture from the device
+
 ###TODO
-- Camera Preview/Capture activity
+
 - Select image from gallery activity
 - Select pipeline activity
   - Create new pipeline activity

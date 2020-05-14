@@ -1,3 +1,27 @@
 <resources>
     <string name="app_name">Cartoonify</string>
+    <string name="picture">Picture</string>
+    <string name="description_info">Info</string>
+    <string name="request_permission">This sample needs camera permission.</string>
+    <string name="camera_error">This device doesn\'t support Camera2 API.</string>
+    <string name="intro_message">
+        <![CDATA[
+            This sample demonstrates the basic use of Camera2 API. Check the source code to see how
+            you can display camera preview and take pictures.
+        ]]>
+    </string>
+    <string name="title_activity_menu">MenuActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="select_photo_fragment_label">Select a Photo to use</string>
+    <string name="label_show_photo">Show Photo</string>
+    <string name="select">Next</string>
+    <string name="take_photo">Take A New Photo</string>
+    <string name="select_from_device">Select Photo From Device</string>
+    <string name="recent_creation">Most Recent Creation</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
