@@ -2,6 +2,7 @@ package com.example.cartoonify.Pixelate
 
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,8 @@ import kotlinx.android.synthetic.main.fragment_pixelate.*
 import org.opencv.android.Utils
 import org.opencv.core.CvType
 import org.opencv.core.Mat
+import org.opencv.core.Size
+import org.opencv.imgproc.Imgproc
 
 private const val ARG_IMBITMAP = "imBitMap"
 private const val ARG_PIXELATE_TYPE = "pixelateType"
@@ -30,6 +33,7 @@ class PixelateFragment :
     private var imBitmap: Bitmap? = null
     private var pixelateType: Int? = null
     private lateinit var im: Mat
+    private lateinit var imSize: Size // original size of image for resizing at the end
 
     lateinit var pixelater: Pixelater
 
@@ -45,6 +49,7 @@ class PixelateFragment :
         }else{
             im = Mat(imBitmap!!.height, imBitmap!!.width, CvType.CV_8UC1)
             Utils.bitmapToMat(imBitmap, im)
+            imSize = im.size()
         }
     }
 
@@ -59,13 +64,18 @@ class PixelateFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         pixelater = Pixelater(this)
-        pixelater.pixelateKMeans(im)
+        pixelater.pixelateInBackground(im)
     }
 
     override fun pixelaterResponse(im: Mat) {
+        Log.d(TAG, "pixelater responded")
+
+        val resizeImg = Mat()
+        Imgproc.resize(im, resizeImg, imSize)
+
         val conf = Bitmap.Config.ARGB_8888
-        val bmp = Bitmap.createBitmap(im.cols(), im.rows(), conf) // this creates a MUTABLE bitmap
-        Utils.matToBitmap(im, bmp)
+        val bmp = Bitmap.createBitmap(resizeImg.cols(), resizeImg.rows(), conf) // this creates a MUTABLE bitmap
+        Utils.matToBitmap(resizeImg, bmp)
 
         requireActivity().runOnUiThread(Runnable {
             image_view_pixelate.setImageBitmap(bmp)
