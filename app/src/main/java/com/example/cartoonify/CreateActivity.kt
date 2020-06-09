@@ -1,23 +1,29 @@
 package com.example.cartoonify
 
-import android.R.attr.data
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.viewpager2.widget.ViewPager2
 import com.example.cartoonify.Pixelate.PixelateFragment
+import kotlinx.android.synthetic.main.activity_create.*
 import org.opencv.android.OpenCVLoader
 
 
 private const val TAG = "CreateActivity"
 
-class CreateActivity : AppCompatActivity(), SelectPhoto.OnPhotoSelectedListener {
+class CreateActivity :
+    AppCompatActivity(),
+    SelectPhoto.OnPhotoSelectedListener,
+    ImageReadyListener{
 
-    private var state: Int = NO_PHOTO_SELECTED
+    private lateinit var viewPager: ViewPager2
+
+    private var state = STATE.NO_PHOTO_SELECTED
+    private var imBitmap: Bitmap? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,10 +35,22 @@ class CreateActivity : AppCompatActivity(), SelectPhoto.OnPhotoSelectedListener 
             Toast.makeText(applicationContext, "Failure", Toast.LENGTH_SHORT).show()
         }
 
+        button_create_confirm.setOnClickListener(onConfirm)
+        create_bottom_app_bar.setNavigationOnClickListener {
+            if(supportFragmentManager.backStackEntryCount > 0) {
+                onBackPressed()
+            }
+        }
+
+        hideConfirmButton()
+
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, SelectPhoto())
-            .addToBackStack(null)
             .commit()
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
     }
 
     override fun onAttachFragment(fragment: Fragment) {
@@ -42,44 +60,61 @@ class CreateActivity : AppCompatActivity(), SelectPhoto.OnPhotoSelectedListener 
         }
     }
 
-    fun onPhotoConfirmed(photo_uri: Uri) {
-        Log.d(TAG, "Photo Confirmed")
-        val fragMan = supportFragmentManager
-        val fragTrans = fragMan.beginTransaction()
+    val onConfirm = View.OnClickListener {
+        // assuming this button was only enabled when the image pro
+        Log.d(TAG, "Confirm Button Pressed")
         var nextFragment: Fragment? = null
+        hideConfirmButton()
+        // flow of image manipulation
         when(state) {
-            PHOTO_SELECTED ->
+            STATE.PHOTO_SELECTED ->
                 // continue to extract foreground fragment
+                nextFragment = PixelateFragment.newInstance(this, imBitmap!!)
+            STATE.IMAGE_PIXELATED ->
                 nextFragment = null
             else ->
                 // default
                 nextFragment = null
         }
         if(nextFragment != null) {
-            fragTrans.replace(R.id.fragment_container, nextFragment)
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, nextFragment)
+                .addToBackStack(null)
+                .commit()
         }
 
     }
 
     override fun onPhotoSelected(imBitmap: Bitmap) {
         Log.d(TAG, "Photo Selected")
-
-        // get bitmap from photo_uri
-//        val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
-        val pixelateFragment = PixelateFragment.newInstance(imBitmap)
-
+        val displayImageFragment = DisplayImageFragment.newInstance(this, imBitmap)
+        state = STATE.PHOTO_SELECTED
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, pixelateFragment)
+            .replace(R.id.fragment_container, displayImageFragment)
             .addToBackStack(null)
             .commit()
     }
 
-    companion object {
-        @JvmStatic val NO_PHOTO_SELECTED = 0
-        @JvmStatic val PHOTO_SELECTED = 1
-        @JvmStatic val FOREGROUND_EXTRACTED = 2
-        @JvmStatic val PHOTO_PIXELATED = 3
-        @JvmStatic val PHOTO_VECTORIZED = 4
-        @JvmStatic val PHOTO_FINISHED = 5
+    override fun imageReady(imBitmap: Bitmap) {
+        this.imBitmap = imBitmap
+        showConfirmButton()
+    }
+
+    fun showConfirmButton() {
+        button_create_confirm.show()
+    }
+
+    fun hideConfirmButton() {
+        button_create_confirm.hide()
+    }
+
+
+    private enum class STATE(){
+        NO_PHOTO_SELECTED,
+        PHOTO_SELECTED,
+        FOREGROUND_EXTRACTED,
+        IMAGE_PIXELATED,
+        IMAGE_VECTORIZED,
+        IMAGE_FINISHED,
     }
 }

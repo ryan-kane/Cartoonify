@@ -21,21 +21,5 @@
         android:layout_gravity="center_vertical|center_horizontal"
         android:indeterminate="true"/>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_pixelate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center"
-        android:layout_marginBottom="@dimen/fab_margin"
-        android:src="@drawable/done_24px" />
-
-    <com.google.android.material.bottomappbar.BottomAppBar
-        android:id="@+id/pixelateBottomAppBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:layout_gravity="bottom"
-        app:navigationIcon="@drawable/arrow_back_24px" />
-
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.example.cartoonify.ImageReadyListener
 import com.example.cartoonify.R
 import org.opencv.android.Utils
 import org.opencv.core.Mat
@@ -41,23 +42,11 @@ class PixelateSelectFragment: Fragment() {
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(imBitmap: Bitmap) =
-            PixelateFragment().apply {
+        fun newInstance(listener: ImageReadyListener, imBitmap: Bitmap) =
+            PixelateFragment(listener).apply {
                 arguments = Bundle().apply {
                     putParcelable(ARG_IMBITMAP, imBitmap)
                 }
             }
-    }
-
-
-    private inner class PagerAdapter(f: Fragment): FragmentStateAdapter(f) {
-        override fun getItemCount(): Int {
-            TODO("Not yet implemented")
-        }
-
-        override fun createFragment(position: Int): Fragment {
-            return PixelateFragment()
-        }
-
     }
 }

@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.example.cartoonify.ImageReadyListener
 import com.example.cartoonify.R
 import kotlinx.android.synthetic.main.fragment_pixelate.*
 import org.opencv.android.Utils
@@ -26,7 +27,7 @@ private const val ARG_PIXELATE_TYPE = "pixelateType"
  */
 private val TAG = "PixelateFragment"
 
-class PixelateFragment :
+class PixelateFragment(val listener: ImageReadyListener) :
     Fragment(),
     Pixelater.PixelaterResponseListener {
 
@@ -80,6 +81,7 @@ class PixelateFragment :
         requireActivity().runOnUiThread(Runnable {
             image_view_pixelate.setImageBitmap(bmp)
             pixelateProgressBar.visibility = View.GONE
+            listener.imageReady(bmp)
         })
     }
 
@@ -93,9 +95,9 @@ class PixelateFragment :
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(imBitmap: Bitmap) =
+        fun newInstance(listener: ImageReadyListener, imBitmap: Bitmap) =
 //        , pixelateType: Int) =
-            PixelateFragment().apply {
+            PixelateFragment(listener).apply {
                 arguments = Bundle().apply {
                     putParcelable(ARG_IMBITMAP, imBitmap)
 //                    putInt(ARG_PIXELATE_TYPE, pixelateType)
