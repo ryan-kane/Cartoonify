@@ -1,27 +1,27 @@
 package com.example.cartoonify
 
+import android.R.attr.bitmap
 import android.app.Activity
 import android.content.Intent
-import android.database.Cursor
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.FrameLayout
 import androidx.core.content.FileProvider
-import androidx.loader.content.CursorLoader
-import androidx.navigation.fragment.findNavController
-import java.io.*
-import java.nio.channels.FileChannel
+import androidx.fragment.app.Fragment
+import java.io.File
+import java.io.FileInputStream
+import java.io.IOException
 import java.util.*
-import kotlin.math.log
+
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -94,52 +94,54 @@ class SelectPhoto : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
-            when (requestCode){
-                TAKE_PHOTO -> {
-                    val photoUri = Uri.parse(photoPath)
-                    callback.onPhotoSelected(photoUri)
-                }
-                SELECT_PHOTO_FROM_DEVICE -> {
-                    val photoFile: File? = try {
-                        createImageFile()
-                    } catch (e: IOException) {
-                        null
-                    }
-                    photoFile?.also {
-                        val photoUri: Uri = FileProvider.getUriForFile(
-                            requireActivity(),
-                            BuildConfig.APPLICATION_ID + ".fileprovider",
-                            it
-                        )
-                        val selectedPhotoUri = data?.data
-
-                        try {
-                            val selectedContent: InputStream? =
-                                requireActivity().contentResolver.openInputStream(selectedPhotoUri!!)
-                            selectedContent.use {
-                                selected_content ->
-                                val content = FileOutputStream(photoFile)
-                                content.use {
-                                    out ->
-                                    val buffer = ByteArray(4 * 1024)
-                                    while (true) {
-                                        val byteCount = selected_content?.read(buffer)
-                                        if (byteCount == null || byteCount < 0) break
-                                        out.write(buffer, 0, byteCount)
-                                    }
-                                }
-                            }
-
-
-
-                        } catch (e: IOException) {
-                            Log.e(TAG, "Could not get selected photo" + e)
-                        }
-                    }
-                    val photoUri = Uri.parse(photoPath)
-                    callback.onPhotoSelected(photoUri)
-                }
-            }
+            val bitmap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, data?.data)
+            callback.onPhotoSelected(bitmap)
+//            when (requestCode){
+//                TAKE_PHOTO -> {
+//                    val photoUri = Uri.parse(photoPath)
+//                    callback.onPhotoSelected(photoUri)
+//                }
+//                SELECT_PHOTO_FROM_DEVICE -> {
+//                    val photoFile: File? = try {
+//                        createImageFile()
+//                    } catch (e: IOException) {
+//                        null
+//                    }
+//                    val bitmap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, data?.data)
+//                    callback.onPhotoSelected(bitmap)
+////                    photoFile?.also {
+////                        val photoUri: Uri = FileProvider.getUriForFile(
+////                            requireActivity(),
+////                            BuildConfig.APPLICATION_ID + ".fileprovider",
+////                            it
+////                        )
+////                        val selectedPhotoUri = data?.data
+////
+//////                        try {
+//////                            val selectedContent: InputStream? =
+//////                                requireActivity().contentResolver.openInputStream(selectedPhotoUri!!)
+//////                            selectedContent.use {
+//////                                selected_content ->
+//////                                val content = FileOutputStream(photoFile)
+//////                                content.use {
+//////                                    out ->
+//////                                    val buffer = ByteArray(4 * 1024)
+//////                                    while (true) {
+//////                                        val byteCount = selected_content?.read(buffer)
+//////                                        if (byteCount == null || byteCount < 0) break
+//////                                        out.write(buffer, 0, byteCount)
+//////                                    }
+//////                                }
+//////                            }
+////
+////                        } catch (e: IOException) {
+////                            Log.e(TAG, "Could not get selected photo" + e)
+////                        }
+//                    }
+////                    val photoUri = Uri.parse(photoPath)
+//                    callback.onPhotoSelected(bitmap)
+//                }
+//            }
         }
     }
 
@@ -148,12 +150,12 @@ class SelectPhoto : Fragment() {
     }
 
     interface OnPhotoSelectedListener {
-        fun onPhotoSelected(photo_uri: Uri)
+        fun onPhotoSelected(imBitmap: Bitmap)
     }
 
     @Throws(IOException::class)
     private fun createImageFile(): File {
-        val timestamp: String = SimpleDateFormat("yyyMMdd_HHmmss").format(Date())
+        val timestamp: String = SimpleDateFormat("yyyMMdd_HHmmss", Locale.CANADA).format(Date())
         val storageDir: File? = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 
         val file =  File.createTempFile(

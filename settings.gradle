@@ -1,2 +1,3 @@
 rootProject.name='Cartoonify'
 include ':app'
+include ':openCVLibrary342'

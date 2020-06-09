@@ -1,5 +1,6 @@
 package com.example.cartoonify
 
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -9,26 +10,31 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.navigation.fragment.findNavController
+import kotlinx.android.synthetic.main.fragment_show_photo.*
+import org.opencv.android.Utils
+import org.opencv.core.Mat
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
  */
 
-const val ARG_PHOTO_URI = "photo_uri"
+private const val ARG_IMBITMAP = "imBitmap"
 
 class ShowPhoto : Fragment() {
 
     val TAG = "Show Photo"
-    private var photo_uri_string: String? = null
+    private var imBitmap: Bitmap? = null
+    private val im = Mat()
 
     companion object {
 
         @JvmStatic
-        fun newInstance(param1: String?) =
+        fun newInstance(imBitmap: Bitmap?) =
             ShowPhoto().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PHOTO_URI, param1)
+                    putParcelable(ARG_IMBITMAP, imBitmap)
                 }
             }
     }
@@ -36,10 +42,9 @@ class ShowPhoto : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            photo_uri_string = it.getString(ARG_PHOTO_URI)
+            imBitmap = it.getParcelable(ARG_IMBITMAP)
         }
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,16 +56,11 @@ class ShowPhoto : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if(photo_uri_string != null) {
-            val photoUri: Uri = Uri.parse(photo_uri_string)
-            showPhoto(photoUri)
+        if(imBitmap != null) {
+            view_show_photo.setImageBitmap(imBitmap)
         }
         view.findViewById<Button>(R.id.button_confirm)
     }
 
-    public fun showPhoto(photoUri: Uri) {
-        val imageView = view?.findViewById<ImageView>(R.id.view_show_photo)
-        imageView?.setImageURI(photoUri)
-    }
 
 }
