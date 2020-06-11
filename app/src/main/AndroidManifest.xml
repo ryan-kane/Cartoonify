@@ -35,7 +35,7 @@
         <activity
             android:name=".CreateActivity"
             android:label=""
-            android:theme="@style/CreateTheme"
+            android:theme="@style/AppTheme"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

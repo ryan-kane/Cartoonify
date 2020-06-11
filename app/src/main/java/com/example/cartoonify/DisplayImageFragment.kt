@@ -25,7 +25,8 @@ private const val ARG_IMBITMAP = "imBitmap"
  */
 
 private const val IM_WIDTH : Double = 900.0 // Double
-class DisplayImageFragment(private val imageReadyListener: ImageReadyListener) : Fragment() {
+class DisplayImageFragment(listener: ImageReadyListener) :
+    PipelineFragment(listener) {
     private var imBitmap: Bitmap? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,13 +49,13 @@ class DisplayImageFragment(private val imageReadyListener: ImageReadyListener) :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         image_view_display_image.setImageBitmap(imBitmap)
-        imageReadyListener.imageReady(imBitmap!!)
+        listener.imageReady(imBitmap!!)
     }
 
     fun resizeImage(imBitmap: Bitmap): Bitmap {
 
-        val im = Mat(imBitmap!!.width, imBitmap!!.height, CvType.CV_8UC1)
-        Utils.bitmapToMat(imBitmap!!, im)
+        val im = Mat(imBitmap.width, imBitmap.height, CvType.CV_8UC1)
+        Utils.bitmapToMat(imBitmap, im)
 
         val f = IM_WIDTH/im.width()
         val w = im.width() * f

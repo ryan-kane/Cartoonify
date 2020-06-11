@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.cartoonify.ImageReadyListener
+import com.example.cartoonify.PipelineFragment
 import com.example.cartoonify.R
 import kotlinx.android.synthetic.main.fragment_extract_foreground.*
 import org.opencv.android.Utils
@@ -26,8 +27,8 @@ private const val TAG = "ExtractForegroundFragment"
  * Use the [ExtractForegroundFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class ExtractForegroundFragment(val listener: ImageReadyListener) :
-    Fragment(),
+class ExtractForegroundFragment(listener: ImageReadyListener) :
+    PipelineFragment(listener),
     ExtractForegroundListener{
 
     private var imBitmap: Bitmap? = null
@@ -57,6 +58,7 @@ class ExtractForegroundFragment(val listener: ImageReadyListener) :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         resetExtractForegroundView(imBitmap!!)
+        listener.imageReady(imBitmap!!)
     }
 
     override fun markBackground(maskBitmap: Bitmap) {

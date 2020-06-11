@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
@@ -52,6 +53,14 @@ class CreateActivity :
 
     override fun onBackPressed() {
         super.onBackPressed()
+        // decrement state
+        if(state != STATE.values()[0]) {
+            val nextStateIndex = STATE.values().indexOf(state) - 1
+            state = STATE.values()[nextStateIndex]
+            if (state == STATE.NO_PHOTO_SELECTED) {
+                hideConfirmButton()
+            }
+        }
     }
 
     override fun onAttachFragment(fragment: Fragment) {
@@ -66,24 +75,27 @@ class CreateActivity :
         Log.d(TAG, "Confirm Button Pressed")
         var nextFragment: Fragment? = null
         hideConfirmButton()
+
+        // Update state
+        incrementState()
+
+        // Update title
+        title_pipeline.text = getString(state.title)
+
         // flow of image manipulation
         when(state) {
-            STATE.PHOTO_SELECTED -> {
+            STATE.EXTRACT_FOREGROUND -> {
                 // continue to extract foreground fragment
                 nextFragment = ExtractForegroundFragment.newInstance(this, imBitmap!!)
-                incrementState(STATE.FOREGROUND_EXTRACTED)
             }
-            STATE.FOREGROUND_EXTRACTED -> {
+            STATE.PIXELATE_IMAGE -> {
                 nextFragment = PixelateFragment.newInstance(this, imBitmap!!)
-                incrementState(STATE.IMAGE_PIXELATED)
+                incrementState()
             }
-            STATE.IMAGE_PIXELATED ->
-                nextFragment = null
             else ->
                 // default
                 nextFragment = null
         }
-
         if(nextFragment != null) {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, nextFragment)
@@ -96,15 +108,17 @@ class CreateActivity :
     override fun onPhotoSelected(imBitmap: Bitmap) {
         Log.d(TAG, "Photo Selected")
         val displayImageFragment = DisplayImageFragment.newInstance(this, imBitmap)
-        state = STATE.PHOTO_SELECTED
+        state = STATE.SELECT_PHOTO
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, displayImageFragment)
             .addToBackStack(null)
             .commit()
     }
 
-    fun incrementState(nextState: STATE) {
-        state = nextState
+    private fun incrementState() {
+        Log.d(TAG, "${STATE.values().indexOf(state)}")
+        val nextStateIndex = STATE.values().indexOf(state) + 1
+        state = STATE.values()[nextStateIndex]
     }
 
     override fun imageReady(imBitmap: Bitmap) {
@@ -125,12 +139,12 @@ class CreateActivity :
     }
 
 
-    enum class STATE(){
-        NO_PHOTO_SELECTED,
-        PHOTO_SELECTED,
-        FOREGROUND_EXTRACTED,
-        IMAGE_PIXELATED,
-        IMAGE_VECTORIZED,
-        IMAGE_FINISHED,
+    enum class STATE(@StringRes val title: Int){
+        NO_PHOTO_SELECTED(R.string.pipeline_title_display_image),
+        SELECT_PHOTO(R.string.pipeline_title_display_image),
+        EXTRACT_FOREGROUND(R.string.pipeline_title_extract_foreground),
+        PIXELATE_IMAGE(R.string.pipeline_title_pixelate),
+        VECTORIZE_IMAGE(R.string.pipeline_title_display_image),
+        IMAGE_FINISHED(R.string.pipeline_title_display_image),
     }
 }

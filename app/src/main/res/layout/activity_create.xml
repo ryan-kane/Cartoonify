@@ -6,11 +6,25 @@
     android:layout_height="match_parent"
     tools:context=".CreateActivity">
 
+    <TextView
+        android:id="@+id/title_pipeline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/title_pipeline_margin"
+        android:textSize="@dimen/title_pipeline_text_size"
+        />
+
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="40dp"/>
+        android:layout_marginBottom="40dp">
+
+
+    </FrameLayout>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -28,10 +42,10 @@
         <com.google.android.material.bottomappbar.BottomAppBar
             android:id="@+id/create_bottom_app_bar"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             app:navigationIcon="@drawable/arrow_back_24px"
-            android:padding="10dp" />
+            />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

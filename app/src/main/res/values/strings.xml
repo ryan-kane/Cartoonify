@@ -15,6 +15,11 @@
     <string name="display_image_fragment_title">Display Image</string>
     <string name="pixelate_image_fragment_title">Pixelate Image</string>
 
+    <!-- Pipeline Fragment Titles-->
+    <string name="pipeline_title_display_image">Select Image</string>
+    <string name="pipeline_title_extract_foreground">Extract Foreground</string>
+    <string name="pipeline_title_pixelate">Pixelate Image</string>
+
     <!-- Strings used for fragments for navigation -->
     <string name="select_photo_fragment_label">Select a Photo to use</string>
     <string name="label_show_photo">Show Photo</string>

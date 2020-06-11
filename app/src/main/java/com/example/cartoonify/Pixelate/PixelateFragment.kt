@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.cartoonify.ImageReadyListener
+import com.example.cartoonify.PipelineFragment
 import com.example.cartoonify.R
 import kotlinx.android.synthetic.main.fragment_pixelate.*
 import org.opencv.android.Utils
@@ -27,8 +28,8 @@ private const val ARG_PIXELATE_TYPE = "pixelateType"
  */
 private val TAG = "PixelateFragment"
 
-class PixelateFragment(val listener: ImageReadyListener) :
-    Fragment(),
+class PixelateFragment(listener: ImageReadyListener) :
+    PipelineFragment(listener),
     Pixelater.PixelaterResponseListener {
 
     private var imBitmap: Bitmap? = null

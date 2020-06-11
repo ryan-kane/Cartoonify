@@ -41,7 +41,7 @@ private const val SELECT_PHOTO_FROM_DEVICE = 1
 private const val TAKE_PHOTO = 2
 
 
-class SelectPhoto : Fragment() {
+class SelectPhoto() : Fragment() {
 
     internal lateinit var callback: OnPhotoSelectedListener
 
