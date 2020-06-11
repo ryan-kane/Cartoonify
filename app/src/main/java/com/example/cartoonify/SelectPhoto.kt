@@ -1,11 +1,16 @@
 package com.example.cartoonify
 
+import android.Manifest
 import android.R.attr.bitmap
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.icu.text.SimpleDateFormat
+import android.media.ExifInterface
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -15,11 +20,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
+import androidx.core.graphics.PathUtils
 import androidx.fragment.app.Fragment
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
+import java.net.URI
 import java.util.*
 
 
@@ -76,18 +84,58 @@ class SelectPhoto : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
+            var bitmap: Bitmap? = null
+            var fileBitmap: Bitmap? = null
+            var orientation: Int? = null
+
             when (requestCode) {
                 TAKE_PHOTO -> {
-                    val imageBitmap = data!!.extras!!.get("data") as Bitmap
-                    callback.onPhotoSelected(imageBitmap)
+                    fileBitmap = data!!.extras!!.get("data") as Bitmap
+                    orientation = 90
                 }
                 SELECT_PHOTO_FROM_DEVICE -> {
-                    val bitmap = MediaStore.Images.Media.getBitmap(
+                    fileBitmap = MediaStore.Images.Media.getBitmap(
                         requireActivity().contentResolver,
                         data?.data
                     )
-                    callback.onPhotoSelected(bitmap)
+                    val orientationPathCol = arrayOf(MediaStore.Images.Media.ORIENTATION)
+                    val cur = requireContext().contentResolver.query(
+                        data?.data!!,
+                        orientationPathCol,
+                        null,
+                        null
+                    )
+                    cur?.moveToFirst()
+                    val imOrientation = cur?.getString(cur.getColumnIndex(orientationPathCol[0]))
+                    cur?.close()
+                    if(imOrientation != null) {
+                        orientation = imOrientation.toInt()
+                    }
+                    Log.d(TAG, "$imOrientation")
                 }
+            }
+            val matrix = Matrix()
+            when(orientation) {
+                90 -> {
+                    matrix.setRotate(90F)
+                    bitmap = Bitmap.createBitmap(
+                        fileBitmap!!,
+                        0,
+                        0,
+                        fileBitmap.width,
+                        fileBitmap.height,
+                        matrix,
+                        true
+                    )
+                }
+                else -> {
+                    bitmap = fileBitmap
+                }
+            }
+            if(bitmap != null) {
+                // properly rotate image
+
+                callback.onPhotoSelected(bitmap)
             }
         }
     }

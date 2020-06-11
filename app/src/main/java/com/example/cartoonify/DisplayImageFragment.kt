@@ -1,6 +1,7 @@
 package com.example.cartoonify
 
 import android.graphics.Bitmap
+import android.media.ExifInterface
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -22,7 +23,9 @@ private const val ARG_IMBITMAP = "imBitmap"
  * Use the [DisplayImageFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class DisplayImageFragment(val imageReadyListener: ImageReadyListener) : Fragment() {
+
+private const val IM_WIDTH : Double = 900.0 // Double
+class DisplayImageFragment(private val imageReadyListener: ImageReadyListener) : Fragment() {
     private var imBitmap: Bitmap? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,13 +33,7 @@ class DisplayImageFragment(val imageReadyListener: ImageReadyListener) : Fragmen
         arguments?.let {
             imBitmap = it.getParcelable(ARG_IMBITMAP)
         }
-        // TODO resize bitmap for now
-        val im = Mat(imBitmap!!.width, imBitmap!!.height, CvType.CV_8UC1)
-        Utils.bitmapToMat(imBitmap!!, im)
-        Imgproc.resize(im, im, Size(720.0, 1080.0))
-        val newImBitmap = Bitmap.createBitmap(im.cols(), im.rows(), Bitmap.Config.ARGB_8888)
-        Utils.matToBitmap(im, newImBitmap)
-        imBitmap = newImBitmap
+        imBitmap = resizeImage(imBitmap!!)
 
     }
 
@@ -52,6 +49,22 @@ class DisplayImageFragment(val imageReadyListener: ImageReadyListener) : Fragmen
         super.onViewCreated(view, savedInstanceState)
         image_view_display_image.setImageBitmap(imBitmap)
         imageReadyListener.imageReady(imBitmap!!)
+    }
+
+    fun resizeImage(imBitmap: Bitmap): Bitmap {
+
+        val im = Mat(imBitmap!!.width, imBitmap!!.height, CvType.CV_8UC1)
+        Utils.bitmapToMat(imBitmap!!, im)
+
+        val f = IM_WIDTH/im.width()
+        val w = im.width() * f
+        val h = im.height() * f
+        Imgproc.resize(im, im, Size(w, h))
+
+        val newImBitmap = Bitmap.createBitmap(im.cols(), im.rows(), Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(im, newImBitmap)
+        
+        return newImBitmap
     }
 
     companion object {
