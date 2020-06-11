@@ -7,6 +7,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_display_image.*
+import org.opencv.android.Utils
+import org.opencv.core.CvType
+import org.opencv.core.Mat
+import org.opencv.core.Size
+import org.opencv.imgproc.Imgproc
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -25,6 +30,14 @@ class DisplayImageFragment(val imageReadyListener: ImageReadyListener) : Fragmen
         arguments?.let {
             imBitmap = it.getParcelable(ARG_IMBITMAP)
         }
+        // TODO resize bitmap for now
+        val im = Mat(imBitmap!!.width, imBitmap!!.height, CvType.CV_8UC1)
+        Utils.bitmapToMat(imBitmap!!, im)
+        Imgproc.resize(im, im, Size(720.0, 1080.0))
+        val newImBitmap = Bitmap.createBitmap(im.cols(), im.rows(), Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(im, newImBitmap)
+        imBitmap = newImBitmap
+
     }
 
     override fun onCreateView(

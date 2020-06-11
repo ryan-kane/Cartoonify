@@ -4,4 +4,5 @@ import android.graphics.Bitmap
 
 interface ImageReadyListener {
     fun imageReady(imBitmap: Bitmap)
+    fun imageNotReady()
 }

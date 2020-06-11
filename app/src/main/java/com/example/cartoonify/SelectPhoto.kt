@@ -64,27 +64,9 @@ class SelectPhoto : Fragment() {
         }
 
         view.findViewById<Button>(R.id.button_take_photo).setOnClickListener {
-            Intent(MediaStore.ACTION_IMAGE_CAPTURE).also {
-                    takePictureIntent ->
+            Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
                 takePictureIntent.resolveActivity(requireActivity().packageManager)?.also {
-                    val photoFile: File? = try {
-                        createImageFile()
-                    } catch (e: IOException) {
-                        null
-                    }
-
-                    if(photoFile == null) {
-                        Log.d(TAG, "null photo file")
-                    } else {
-                        Log.d(TAG, "Not null photo file")
-                    }
-                    photoFile?.also {
-                        val photoURI: Uri = FileProvider.getUriForFile(
-                            requireActivity(), "com.example.cartoonify.fileprovider", it
-                        )
-                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                        startActivityForResult(takePictureIntent, TAKE_PHOTO)
-                    }
+                    startActivityForResult(takePictureIntent, TAKE_PHOTO)
                 }
             }
         }
@@ -94,54 +76,19 @@ class SelectPhoto : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
-            val bitmap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, data?.data)
-            callback.onPhotoSelected(bitmap)
-//            when (requestCode){
-//                TAKE_PHOTO -> {
-//                    val photoUri = Uri.parse(photoPath)
-//                    callback.onPhotoSelected(photoUri)
-//                }
-//                SELECT_PHOTO_FROM_DEVICE -> {
-//                    val photoFile: File? = try {
-//                        createImageFile()
-//                    } catch (e: IOException) {
-//                        null
-//                    }
-//                    val bitmap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, data?.data)
-//                    callback.onPhotoSelected(bitmap)
-////                    photoFile?.also {
-////                        val photoUri: Uri = FileProvider.getUriForFile(
-////                            requireActivity(),
-////                            BuildConfig.APPLICATION_ID + ".fileprovider",
-////                            it
-////                        )
-////                        val selectedPhotoUri = data?.data
-////
-//////                        try {
-//////                            val selectedContent: InputStream? =
-//////                                requireActivity().contentResolver.openInputStream(selectedPhotoUri!!)
-//////                            selectedContent.use {
-//////                                selected_content ->
-//////                                val content = FileOutputStream(photoFile)
-//////                                content.use {
-//////                                    out ->
-//////                                    val buffer = ByteArray(4 * 1024)
-//////                                    while (true) {
-//////                                        val byteCount = selected_content?.read(buffer)
-//////                                        if (byteCount == null || byteCount < 0) break
-//////                                        out.write(buffer, 0, byteCount)
-//////                                    }
-//////                                }
-//////                            }
-////
-////                        } catch (e: IOException) {
-////                            Log.e(TAG, "Could not get selected photo" + e)
-////                        }
-//                    }
-////                    val photoUri = Uri.parse(photoPath)
-//                    callback.onPhotoSelected(bitmap)
-//                }
-//            }
+            when (requestCode) {
+                TAKE_PHOTO -> {
+                    val imageBitmap = data!!.extras!!.get("data") as Bitmap
+                    callback.onPhotoSelected(imageBitmap)
+                }
+                SELECT_PHOTO_FROM_DEVICE -> {
+                    val bitmap = MediaStore.Images.Media.getBitmap(
+                        requireActivity().contentResolver,
+                        data?.data
+                    )
+                    callback.onPhotoSelected(bitmap)
+                }
+            }
         }
     }
 

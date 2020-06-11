@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
+import com.example.cartoonify.ExtractForeground.ExtractForegroundFragment
 import com.example.cartoonify.Pixelate.PixelateFragment
 import kotlinx.android.synthetic.main.activity_create.*
 import org.opencv.android.OpenCVLoader
@@ -67,15 +68,22 @@ class CreateActivity :
         hideConfirmButton()
         // flow of image manipulation
         when(state) {
-            STATE.PHOTO_SELECTED ->
+            STATE.PHOTO_SELECTED -> {
                 // continue to extract foreground fragment
+                nextFragment = ExtractForegroundFragment.newInstance(this, imBitmap!!)
+                incrementState(STATE.FOREGROUND_EXTRACTED)
+            }
+            STATE.FOREGROUND_EXTRACTED -> {
                 nextFragment = PixelateFragment.newInstance(this, imBitmap!!)
+                incrementState(STATE.IMAGE_PIXELATED)
+            }
             STATE.IMAGE_PIXELATED ->
                 nextFragment = null
             else ->
                 // default
                 nextFragment = null
         }
+
         if(nextFragment != null) {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, nextFragment)
@@ -95,9 +103,17 @@ class CreateActivity :
             .commit()
     }
 
+    fun incrementState(nextState: STATE) {
+        state = nextState
+    }
+
     override fun imageReady(imBitmap: Bitmap) {
         this.imBitmap = imBitmap
         showConfirmButton()
+    }
+
+    override fun imageNotReady() {
+        hideConfirmButton()
     }
 
     fun showConfirmButton() {
@@ -109,7 +125,7 @@ class CreateActivity :
     }
 
 
-    private enum class STATE(){
+    enum class STATE(){
         NO_PHOTO_SELECTED,
         PHOTO_SELECTED,
         FOREGROUND_EXTRACTED,
