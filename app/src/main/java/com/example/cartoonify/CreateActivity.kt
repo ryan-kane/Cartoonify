@@ -22,8 +22,6 @@ class CreateActivity :
     SelectPhoto.OnPhotoSelectedListener,
     ImageReadyListener{
 
-    private lateinit var viewPager: ViewPager2
-
     private var state = STATE.NO_PHOTO_SELECTED
     private var imBitmap: Bitmap? = null
 
@@ -61,6 +59,8 @@ class CreateActivity :
                 hideConfirmButton()
             }
         }
+        // Update title
+        title_pipeline.text = getString(state.title)
     }
 
     override fun onAttachFragment(fragment: Fragment) {
@@ -79,8 +79,6 @@ class CreateActivity :
         // Update state
         incrementState()
 
-        // Update title
-        title_pipeline.text = getString(state.title)
 
         // flow of image manipulation
         when(state) {
@@ -119,6 +117,9 @@ class CreateActivity :
         Log.d(TAG, "${STATE.values().indexOf(state)}")
         val nextStateIndex = STATE.values().indexOf(state) + 1
         state = STATE.values()[nextStateIndex]
+
+        // Update title
+        title_pipeline.text = getString(state.title)
     }
 
     override fun imageReady(imBitmap: Bitmap) {
