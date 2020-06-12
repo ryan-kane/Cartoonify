@@ -2,7 +2,6 @@ package com.example.cartoonify.Vectorize
 
 import org.opencv.core.CvType
 import org.opencv.core.Mat
-import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 
 private const val Y_THRESH = 48.0 / 255.0
@@ -147,7 +146,98 @@ class SimilarityGraph {
         }
     }
 
+    private fun findPixelCorner(y: Int, x: Int, i: Int, j: Int): Corner {
+        val pixel = graph[y][x]
+        val cx = x + 0.5
+        val cy = y + 0.5
+        var result = Corner
+        result.firstValid = false
+        result.secondValid = false
+        result.split = false
+        val invalid = PointC(-1.0, -1.0)
+        if(!pixel[getEdge(i, 0)] || !pixel[getEdge(0, j)]) {
+            if((y + i >= 0 && y + i < graph.size) || (x + j >= 0 && x + j < graph[0].size)) {
+                if (pixel[getEdge(i, j)]) {
+                    val first = invalid
+                    val second = invalid
+                    if(!pixel[getEdge(i, 0)]) {
+                        result.firstValid = true
+                        result.first = PointC(cx + 0.25 * j, cy + 0.75 * i)
+                    }
+                    if(!pixel[getEdge(0, j)]) {
+                        result.secondValid = true
+                        result.second = PointC(cx + 0.75 * j, cy + 0.25 * i)
+                    }
+                    result.split = true
+                    return result
+                }
+            }
+            if(y + i >= 0 && y + i < graph.size) {
+                if((!pixel[getEdge(i, 0)]) && (graph[y][x + j][getEdge(-i, j)])) {
+                    result.firstValid = true
+                    result.first = PointC(cx + 0.25 * j, cy + 0.25 * i)
+                    return result
+                }
+            }
+            if(x + j >= 0 && x + j < graph[0].size) {
+                if((!pixel[getEdge(0, j)]) && graph[y][x + j][getEdge(i, -j)]) {
+                    result.firstValid = true
+                    result.first = PointC(cx + 0.25 * j, cy + 0.25 * i)
+                    return result
+                }
+            }
+            result.first = PointC(cx + 0.5 * j, cy + 0.5 * i)
+            result.firstValid = true
+            return result
+        }
+        return result
+    }
+
+    fun extractDualGraph() {
+        val borders = BorderGraph()
+        for(y in graph.indices) {
+            for(x in graph[0].indices){
+                // get corners
+                var corners = arrayOf<Array<Corner>>()
+                corners += arrayOf(
+                    findPixelCorner(y, x, -1, -1),
+                    findPixelCorner(y, x, -1, 1)
+                )
+                corners += arrayOf(
+                    findPixelCorner(y, x, 1, -1),
+                    findPixelCorner(y, x, 1, 1)
+                )
+                for (ci in 0..1) {
+                    val i = (2 * ci) - 1
+                    for(cj in 0..1) {
+                        val j = (2 * cj) - 1
+                        if(!(corners[ci][cj].split)!!) {
+                            if(corners[ci][cj].firstValid!!) {
+                                // link to adjacent
+                                if(!graph[y][x][getEdge(i, 0)]){
+                                    val ncj = if (cj == 1) 0 else 1
+                                    if(corners[ci][ncj].split!!) {
+                                        borders.addEdge()
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    object Corner{
+        var firstValid : Boolean? = null
+        var secondValid : Boolean? = null
+        var split : Boolean? = null
+        var first: PointC? = null
+        var second: PointC? = null
+
+    }
+
 }
 
-fun extractDualGraph() {}
 
