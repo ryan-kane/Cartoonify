@@ -1,5 +1,6 @@
 package com.example.cartoonify.Vectorize
 
+import android.util.Log
 import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.imgproc.Imgproc
@@ -7,6 +8,8 @@ import org.opencv.imgproc.Imgproc
 private const val Y_THRESH = 48.0 / 255.0
 private const val U_THRESH = 7.0 / 255.0
 private const val V_THRESH = 6.0 / 255.0
+
+private const val TAG = "SimilarityGraph"
 
 class SimilarityGraph {
 
@@ -58,10 +61,6 @@ class SimilarityGraph {
             graph[im.rows() - 1][x][2] = false
         }
 
-        val imYUV = Mat(im.size(), CvType.CV_8U)
-
-        Imgproc.cvtColor(im, imYUV, Imgproc.COLOR_RGBA2YUV_I420)
-
         // remove edges between nodes with sufficiently different colours
         // sufficiently different is shown in similarColor
         for(y in 0 until im.rows()) {
@@ -72,12 +71,12 @@ class SimilarityGraph {
                         if((j == -1 && x == 0) || (j == 1 && x == im.rows()-1)) continue
                         if(i == 0 && j == 0) continue // no edge to self
                         // compare edges
-                        if(similar(imYUV.get(y, x), imYUV.get(y + i, x + j))) {
+                        if(similar(im.get(y, x), im.get(y + i, x + j))) {
                             // edges are similar, do not disconnect
                             // handle diagonal cases
                             if((i != 0 && j != 0) &&
-                                similar(imYUV.get(y + i, x), imYUV.get(y, x + j))) {
-                                if(similar(imYUV.get(y, x), imYUV.get(y + i, x))) {
+                                similar(im.get(y + i, x), im.get(y, x + j))) {
+                                if(similar(im.get(y, x), im.get(y + i, x))) {
                                     // blue edge safe to remove
                                     disconnect(y, x, i, j)
                                 } else {
@@ -88,7 +87,7 @@ class SimilarityGraph {
                                     }else if (!graph[y + i][x][getEdge(-i, j)] || !graph[y][x + j][getEdge(i, -j)]){
                                         continue
                                     } else {
-                                        disconnect(x, y, i, j)
+                                        disconnect(y, x, i, j)
                                     }
                                 }
                             }
@@ -101,11 +100,12 @@ class SimilarityGraph {
         }
     }
 
-    private fun similar(yuvLeft: DoubleArray, yuvRight: DoubleArray): Boolean {
+    private fun similar(lhs: DoubleArray, rhs: DoubleArray): Boolean {
         // compares YUV pixels
-        return (yuvLeft[0] - yuvRight[0] < Y_THRESH) &&
-                (yuvLeft[1] - yuvRight[1] < U_THRESH) &&
-                (yuvLeft[2] - yuvRight[2] < V_THRESH)
+        return (lhs[0] == rhs[0]) &&
+                (lhs[1] == rhs[1]) &&
+                (lhs[2] == rhs[2]) &&
+                (lhs[3] == rhs[3])
 
     }
 
@@ -173,7 +173,7 @@ class SimilarityGraph {
                 }
             }
             if(y + i >= 0 && y + i < graph.size) {
-                if((!pixel[getEdge(i, 0)]) && (graph[y][x + j][getEdge(-i, j)])) {
+                if((!pixel[getEdge(i, 0)]) && (graph[y + i][x][getEdge(-i, j)])) {
                     result.firstValid = true
                     result.first = PointC(cx + 0.25 * j, cy + 0.25 * i)
                     return result
@@ -193,7 +193,7 @@ class SimilarityGraph {
         return result
     }
 
-    fun extractDualGraph() {
+    fun extractDualGraph(): BorderGraph {
         val borders = BorderGraph()
         for(y in graph.indices) {
             for(x in graph[0].indices){
@@ -217,7 +217,21 @@ class SimilarityGraph {
                                 if(!graph[y][x][getEdge(i, 0)]){
                                     val ncj = if (cj == 1) 0 else 1
                                     if(corners[ci][ncj].split!!) {
-                                        borders.addEdge()
+                                        borders.addEdge(corners[ci][cj].first!!,
+                                            corners[ci][ncj].first!!)
+                                    }else if(corners[ci][cj].firstValid!!) {
+                                        borders.addEdge(corners[ci][cj].first!!,
+                                            corners[ci][ncj].first!!)
+                                    }
+                                }
+                                if(graph[y][x][getEdge(0, j)]) {
+                                    val nci = if (ci == 1) 0 else 1
+                                    if (corners[nci][cj].split!!) {
+                                        borders.addEdge(corners[ci][cj].first!!,
+                                            corners[nci][cj].second!!)
+                                    } else if (corners[nci][cj].firstValid!!) {
+                                        borders.addEdge(corners[ci][cj].first!!,
+                                            corners[nci][cj].first!!)
                                     }
                                 }
                             }
@@ -227,6 +241,7 @@ class SimilarityGraph {
                 }
             }
         }
+        return borders
     }
 
     object Corner{

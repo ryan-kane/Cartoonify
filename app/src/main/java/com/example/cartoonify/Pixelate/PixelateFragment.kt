@@ -76,11 +76,13 @@ class PixelateFragment(listener: ImageReadyListener) :
         Imgproc.resize(im, resizeImg, imSize)
 
         val conf = Bitmap.Config.ARGB_8888
-        val bmp = Bitmap.createBitmap(resizeImg.cols(), resizeImg.rows(), conf) // this creates a MUTABLE bitmap
-        Utils.matToBitmap(resizeImg, bmp)
+        val bmp = Bitmap.createBitmap(im.cols(), im.rows(), conf)
+        val resizeBmp = Bitmap.createBitmap(resizeImg.cols(), resizeImg.rows(), conf)
+        Utils.matToBitmap(resizeImg, resizeBmp)
+        Utils.matToBitmap(im, bmp)
 
         requireActivity().runOnUiThread(Runnable {
-            image_view_pixelate.setImageBitmap(bmp)
+            image_view_pixelate.setImageBitmap(resizeBmp)
             pixelateProgressBar.visibility = View.GONE
             listener.imageReady(bmp)
         })

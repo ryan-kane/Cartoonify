@@ -19,6 +19,7 @@
     <string name="pipeline_title_display_image">Select Image</string>
     <string name="pipeline_title_extract_foreground">Extract Foreground</string>
     <string name="pipeline_title_pixelate">Pixelate Image</string>
+    <string name="pipeline_title_vectorize">Vectorize Image</string>
 
     <!-- Strings used for fragments for navigation -->
     <string name="select_photo_fragment_label">Select a Photo to use</string>

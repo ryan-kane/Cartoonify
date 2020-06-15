@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.example.cartoonify.ExtractForeground.ExtractForegroundFragment
 import com.example.cartoonify.Pixelate.PixelateFragment
+import com.example.cartoonify.Vectorize.VectorizeImageFragment
 import kotlinx.android.synthetic.main.activity_create.*
 import org.opencv.android.OpenCVLoader
 
@@ -79,20 +80,21 @@ class CreateActivity :
         // Update state
         incrementState()
 
-
         // flow of image manipulation
-        when(state) {
+        nextFragment = when(state) {
             STATE.EXTRACT_FOREGROUND -> {
                 // continue to extract foreground fragment
-                nextFragment = ExtractForegroundFragment.newInstance(this, imBitmap!!)
+                ExtractForegroundFragment.newInstance(this, imBitmap!!)
             }
             STATE.PIXELATE_IMAGE -> {
-                nextFragment = PixelateFragment.newInstance(this, imBitmap!!)
-                incrementState()
+                PixelateFragment.newInstance(this, imBitmap!!)
+            }
+            STATE.VECTORIZE_IMAGE -> {
+                VectorizeImageFragment.newInstance(this, imBitmap!!)
             }
             else ->
                 // default
-                nextFragment = null
+                null
         }
         if(nextFragment != null) {
             supportFragmentManager.beginTransaction()
@@ -131,11 +133,11 @@ class CreateActivity :
         hideConfirmButton()
     }
 
-    fun showConfirmButton() {
+    private fun showConfirmButton() {
         button_create_confirm.show()
     }
 
-    fun hideConfirmButton() {
+    private fun hideConfirmButton() {
         button_create_confirm.hide()
     }
 
@@ -145,7 +147,7 @@ class CreateActivity :
         SELECT_PHOTO(R.string.pipeline_title_display_image),
         EXTRACT_FOREGROUND(R.string.pipeline_title_extract_foreground),
         PIXELATE_IMAGE(R.string.pipeline_title_pixelate),
-        VECTORIZE_IMAGE(R.string.pipeline_title_display_image),
+        VECTORIZE_IMAGE(R.string.pipeline_title_vectorize),
         IMAGE_FINISHED(R.string.pipeline_title_display_image),
     }
 }
