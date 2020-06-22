@@ -42,11 +42,9 @@ class VectorizeImageFragment(listener: ImageReadyListener) :
             Toast.makeText(requireContext(), "No Image", Toast.LENGTH_SHORT).show()
             requireActivity().onBackPressed()
         }else{
-            im = Mat(imBitmap!!.height, imBitmap!!.width, CvType.CV_8UC1)
+            im = Mat(imBitmap!!.height, imBitmap!!.width, CvType.CV_8U)
             Utils.bitmapToMat(imBitmap, im)
-            imSize = im!!.size()
         }
-
     }
 
     override fun onCreateView(
@@ -63,11 +61,11 @@ class VectorizeImageFragment(listener: ImageReadyListener) :
         vectorizer.vectorize(im!!)
     }
 
-    override fun imageVectorized(im: Mat) {
+    override fun imageVectorized(imV: Mat) {
         // convert to bitmap
         val conf = Bitmap.Config.ARGB_8888
-        val bmp = Bitmap.createBitmap(im.cols(), im.rows(), conf) // this creates a MUTABLE bitmap
-        Utils.matToBitmap(im, bmp)
+        val bmp = Bitmap.createBitmap(imV.cols(), imV.rows(), conf) // this creates a MUTABLE bitmap
+        Utils.matToBitmap(imV, bmp)
         requireActivity().runOnUiThread(Runnable{
             vectorize_image_view.setImageBitmap(bmp)
             vectorize_progress_bar.visibility = View.GONE

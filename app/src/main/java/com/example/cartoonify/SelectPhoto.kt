@@ -90,8 +90,9 @@ class SelectPhoto() : Fragment() {
 
             when (requestCode) {
                 TAKE_PHOTO -> {
+                    // only takes photos in portrait mode for now
                     fileBitmap = data!!.extras!!.get("data") as Bitmap
-                    orientation = 90
+                    orientation = 270
                 }
                 SELECT_PHOTO_FROM_DEVICE -> {
                     fileBitmap = MediaStore.Images.Media.getBitmap(
@@ -115,22 +116,19 @@ class SelectPhoto() : Fragment() {
                 }
             }
             val matrix = Matrix()
-            when(orientation) {
-                90 -> {
-                    matrix.setRotate(90F)
-                    bitmap = Bitmap.createBitmap(
-                        fileBitmap!!,
-                        0,
-                        0,
-                        fileBitmap.width,
-                        fileBitmap.height,
-                        matrix,
-                        true
-                    )
-                }
-                else -> {
-                    bitmap = fileBitmap
-                }
+            bitmap = if(orientation != null) {
+                matrix.setRotate(orientation.toFloat())
+                Bitmap.createBitmap(
+                    fileBitmap!!,
+                    0,
+                    0,
+                    fileBitmap.width,
+                    fileBitmap.height,
+                    matrix,
+                    true
+                )
+            } else {
+                fileBitmap
             }
             if(bitmap != null) {
                 // properly rotate image

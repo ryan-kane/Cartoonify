@@ -18,7 +18,6 @@ class Vectorizer(val listener: VectorizeImageResponseListener) {
     fun vectorize(im: Mat) {
         // run in background
         Thread(Runnable {
-
             // similarity graph
             Log.d(TAG, "similarity graph")
             val similarityGraph = SimilarityGraph(im)
@@ -30,7 +29,7 @@ class Vectorizer(val listener: VectorizeImageResponseListener) {
             // set borders
             Log.d(TAG, "set borders")
             val borderIm = setBorders(im.size(), borderGraph.getChains(), 10)
-
+//            listener.imageVectorized(borderIm)
             // approximate color map
             Log.d(TAG, "approximate colors")
             val colors = approximateColorMap(im, 10)
@@ -46,7 +45,7 @@ class Vectorizer(val listener: VectorizeImageResponseListener) {
 
     }
 
-    fun setBorders(size : Size, borders : ArrayList<ArrayList<PointC>>, scale : Int): Mat {
+    private fun setBorders(size : Size, borders : ArrayList<ArrayList<PointC>>, scale : Int): Mat {
         val dst = Mat(
             (size.height*scale + 1).toInt(),
             (size.width*scale + 1).toInt(),
@@ -54,6 +53,7 @@ class Vectorizer(val listener: VectorizeImageResponseListener) {
         )
         val black = Scalar(0.0, 0.0, 0.0, 128.0)
         for(chain in borders) {
+            Log.d(TAG, "Chain")
             for(i in 1 until chain.size) {
                 Imgproc.line(
                     dst,
@@ -62,7 +62,6 @@ class Vectorizer(val listener: VectorizeImageResponseListener) {
                     black
                 )
             }
-
         }
         return dst
     }
