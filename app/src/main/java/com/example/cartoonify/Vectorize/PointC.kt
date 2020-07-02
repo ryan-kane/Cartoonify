@@ -2,7 +2,10 @@ package com.example.cartoonify.Vectorize
 
 import org.opencv.core.Point
 
-class PointC(x: Double, y: Double) : Point(x, y) {
+class PointC : Point {
+
+    constructor(x: Int, y: Int): super(x.toDouble(), y.toDouble())
+    constructor(x: Double, y: Double): super(x, y)
 
     fun compareTo(other: PointC): Int {
         return if(this.y == other.y && this.x == other.x) {

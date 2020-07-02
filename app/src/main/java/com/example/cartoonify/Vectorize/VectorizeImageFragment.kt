@@ -10,7 +10,6 @@ import android.widget.Toast
 import com.example.cartoonify.ImageReadyListener
 import com.example.cartoonify.PipelineFragment
 import com.example.cartoonify.R
-import kotlinx.android.synthetic.main.fragment_extract_foreground.*
 import kotlinx.android.synthetic.main.fragment_vectorize_image.*
 import org.opencv.android.Utils
 import org.opencv.core.CvType
@@ -61,11 +60,11 @@ class VectorizeImageFragment(listener: ImageReadyListener) :
         vectorizer.vectorize(im!!)
     }
 
-    override fun imageVectorized(imV: Mat) {
+    override fun imageVectorized(im: Mat) {
         // convert to bitmap
         val conf = Bitmap.Config.ARGB_8888
-        val bmp = Bitmap.createBitmap(imV.cols(), imV.rows(), conf) // this creates a MUTABLE bitmap
-        Utils.matToBitmap(imV, bmp)
+        val bmp = Bitmap.createBitmap(im.cols(), im.rows(), conf) // this creates a MUTABLE bitmap
+        Utils.matToBitmap(im, bmp)
         requireActivity().runOnUiThread(Runnable{
             vectorize_image_view.setImageBitmap(bmp)
             vectorize_progress_bar.visibility = View.GONE

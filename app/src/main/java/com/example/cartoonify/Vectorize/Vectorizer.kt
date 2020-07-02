@@ -9,7 +9,7 @@ import kotlin.collections.HashMap
 
 private const val TAG = "Vectorizer"
 
-class Vectorizer(val listener: VectorizeImageResponseListener) {
+class Vectorizer(private val listener: VectorizeImageResponseListener) {
 
     interface VectorizeImageResponseListener {
         fun imageVectorized(im: Mat)
@@ -24,24 +24,23 @@ class Vectorizer(val listener: VectorizeImageResponseListener) {
 
             // border graph (dual graph)
             Log.d(TAG, "extract dual graph")
-            val borderGraph = similarityGraph.extractDualGraph()
+            val out = similarityGraph.similarityMat(im)
+//            val borderGraph = similarityGraph.extractDualGraph()
 
             // set borders
-            Log.d(TAG, "set borders")
-            val borderIm = setBorders(im.size(), borderGraph.getChains(), 10)
+//            Log.d(TAG, "set borders")
+//            val borderIm = setBorders(im.size(), borderGraph.getChains(), 10)
 //            listener.imageVectorized(borderIm)
             // approximate color map
-            Log.d(TAG, "approximate colors")
-            val colors = approximateColorMap(im, 10)
-            // flood colors
-            Log.d(TAG, "Flood colors")
-            val out = floodColors(borderIm, colors)
+//            Log.d(TAG, "approximate colors")
+//            val colors = approximateColorMap(im, 10)
+//            // flood colors
+//            Log.d(TAG, "Flood colors")
+//            val out = floodColors(borderIm, colors)
 
             Log.d(TAG, "Done")
             listener.imageVectorized(out)
         }).start()
-
-
 
     }
 

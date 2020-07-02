@@ -38,9 +38,7 @@ class CreateActivity :
 
         button_create_confirm.setOnClickListener(onConfirm)
         create_bottom_app_bar.setNavigationOnClickListener {
-            if(supportFragmentManager.backStackEntryCount > 0) {
-                onBackPressed()
-            }
+            onBackPressed()
         }
 
         hideConfirmButton()
